@@ -52,7 +52,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ROLES,
       default: 'client',
+    },nationalId: {
+  type: String,
+  trim: true,
+  default: null,
+  validate: {
+    validator: function (v) {
+      return v == null || /^\d{14}$/.test(v);
     },
+    message: 'الرقم القومي يجب أن يتكون من 14 رقم',
+  },
+},
+    
     branch: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Branch',

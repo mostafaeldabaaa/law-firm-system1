@@ -1,11 +1,12 @@
 const admin = require('firebase-admin');
 const logger = require('../utils/logger');
-
 /**
- * Firebase Admin SDK initialization, used exclusively for Firebase Cloud
- * Messaging (FCM) push notifications — no other Firebase product
- * (Firestore, Auth, Storage) is used, so this stays free under FCM's
- * no-cost tier regardless of volume.
+ * Firebase Admin SDK initialization, used for:
+ *  1) Firebase Cloud Messaging (FCM) push notifications
+ *  2) Firestore — a lightweight real-time mirror of consultation
+ *     messages, used only so clients/lawyers see new messages instantly
+ *     without polling. MongoDB remains the source of truth; Firestore
+ *     writes are best-effort and never block the main request/response.
  *
  * Credentials are loaded from a service account JSON file downloaded
  * from Firebase Console (Project Settings -> Service Accounts ->
@@ -14,23 +15,19 @@ const logger = require('../utils/logger');
  *
  * If Firebase isn't configured (e.g. local development without a
  * service account yet), initialization is skipped gracefully and
- * pushNotificationService logs instead of throwing, so the rest of
- * the API keeps working without FCM.
+ * dependent services log instead of throwing, so the rest of the API
+ * keeps working without FCM/Firestore.
  */
 let initialized = false;
-
 const initFirebase = () => {
   if (initialized) return admin;
-
   const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
-
   if (!serviceAccountPath) {
     logger.warn(
-      'FIREBASE_SERVICE_ACCOUNT_PATH is not set — push notifications via FCM are disabled.'
+      'FIREBASE_SERVICE_ACCOUNT_PATH is not set — push notifications via FCM and Firestore sync are disabled.'
     );
     return null;
   }
-
   try {
     // eslint-disable-next-line global-require, import/no-dynamic-require
     const serviceAccount = require(serviceAccountPath);
@@ -38,7 +35,7 @@ const initFirebase = () => {
       credential: admin.credential.cert(serviceAccount),
     });
     initialized = true;
-    logger.info('Firebase Admin SDK initialized successfully (FCM push notifications enabled).');
+    logger.info('Firebase Admin SDK initialized successfully (FCM push notifications + Firestore enabled).');
     return admin;
   } catch (err) {
     logger.error(`Failed to initialize Firebase Admin SDK: ${err.message}`);
@@ -51,4 +48,9 @@ const getMessaging = () => {
   return app ? app.messaging() : null;
 };
 
-module.exports = { initFirebase, getMessaging };
+const getFirestore = () => {
+  const app = initFirebase();
+  return app ? app.firestore() : null;
+};
+
+module.exports = { initFirebase, getMessaging, getFirestore };

@@ -1,3 +1,111 @@
+
+// const mongoose = require('mongoose');
+
+// /**
+//  * Legal Consultation request.
+//  *
+//  * Lets a client request advice from the firm — either a general
+//  * request (routed to whichever lawyer/secretary picks it up) or
+//  * addressed to a specific lawyer. This is intentionally a lighter-
+//  * weight flow than a Case: a consultation does NOT automatically
+//  * become a case. Staff can optionally convert one into a real Case
+//  * later (see consultationController.convertToCase) once it's clear
+//  * representation is actually needed.
+//  */
+// const CONSULTATION_STATUSES = [
+//   'pending', // submitted, not yet picked up by a lawyer
+//   'in_progress', // a lawyer is actively responding
+//   'answered', // lawyer has provided a response
+//   'closed', // resolved / no further action needed
+//   'converted_to_case', // escalated into a full Case
+// ];
+
+// const consultationMessageSchema = new mongoose.Schema(
+//   {
+//     sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+//     senderRole: { type: String, enum: ['client', 'lawyer', 'staff'], required: true },
+//     text: { type: String, required: true, maxlength: 4000 },
+//   },
+//   { timestamps: true }
+// );
+
+// const consultationSchema = new mongoose.Schema(
+//   {
+//     client: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: 'Client',
+//       required: true,
+//     },
+//     requestedBy: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: 'User',
+//       required: true,
+//     },
+//     subject: {
+//       type: String,
+//       required: [true, 'Consultation subject is required'],
+//       trim: true,
+//     },
+//     category: {
+//       type: String,
+//       trim: true,
+//     },
+//     description: {
+//       type: String,
+//       required: [true, 'Consultation description is required'],
+//       trim: true,
+//       maxlength: 4000,
+//     },
+//     preferredLawyer: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: 'Lawyer',
+//       default: null,
+//     },
+//     assignedLawyer: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: 'Lawyer',
+//       default: null,
+//     },
+//     status: {
+//       type: String,
+//       enum: CONSULTATION_STATUSES,
+//       default: 'pending',
+//     },
+//     messages: [consultationMessageSchema],
+//     // آخر رسالة اتبعتت فعليًا في الـ thread — بمعزل عن أي تعديل تاني زي
+//     // assign أو status update. ده اللي الفرونت بيعتمد عليه لعلامة
+//     // "غير مقروء" على عنصر الاستشارة في القائمة.
+//     lastMessageAt: {
+//       type: Date,
+//       default: null,
+//     },
+//     lastMessageBy: {
+//       type: String,
+//       enum: ['client', 'lawyer', 'staff'],
+//       default: null,
+//     },
+//     convertedToCase: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: 'Case',
+//       default: null,
+//     },
+//     closedAt: {
+//       type: Date,
+//       default: null,
+//     },
+//   },
+//   { timestamps: true }
+// );
+
+// consultationSchema.index({ client: 1 });
+// consultationSchema.index({ assignedLawyer: 1, status: 1 });
+// consultationSchema.index({ status: 1 });
+
+// const Consultation = mongoose.model('Consultation', consultationSchema);
+
+// module.exports = { Consultation, CONSULTATION_STATUSES };
+
+
 const mongoose = require('mongoose');
 
 /**
@@ -23,7 +131,13 @@ const consultationMessageSchema = new mongoose.Schema(
   {
     sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     senderRole: { type: String, enum: ['client', 'lawyer', 'staff'], required: true },
-    text: { type: String, required: true, maxlength: 4000 },
+    // مش required دلوقتي: ممكن الرسالة تكون مرفق بس من غير نص مصاحب.
+    text: { type: String, maxlength: 4000, default: '' },
+    // بيانات المرفق (اختيارية) — بتتملى بس لو المستخدم رفع ملف مع الرسالة.
+    attachmentUrl: { type: String, default: null },
+    attachmentName: { type: String, default: null },
+    attachmentType: { type: String, default: null }, // MIME type
+    attachmentSize: { type: Number, default: null }, // bytes
   },
   { timestamps: true }
 );

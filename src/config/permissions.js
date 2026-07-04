@@ -72,13 +72,17 @@ const PERMISSIONS = {
     [ACTIONS.EXPORT]: ['super_admin', 'branch_manager'],
   },
   [RESOURCES.USERS]: {
-    [ACTIONS.VIEW]: ['super_admin', 'branch_manager'],
-    [ACTIONS.CREATE]: ['super_admin'],
-    [ACTIONS.EDIT]: ['super_admin', 'branch_manager'],
-    [ACTIONS.DELETE]: ['super_admin'],
+    // [ACTIONS.VIEW]: ['super_admin', 'branch_manager'],
+    // [ACTIONS.CREATE]: ['super_admin'],
+    // [ACTIONS.EDIT]: ['super_admin', 'branch_manager'],
+    // [ACTIONS.DELETE]: ['super_admin'],
+    [ACTIONS.VIEW]: ['super_admin', 'branch_manager', 'senior_lawyer', 'lawyer', 'secretary'],
+    [ACTIONS.CREATE]: ['super_admin', 'branch_manager', 'senior_lawyer', 'lawyer', 'secretary'],
+    [ACTIONS.EDIT]: ['super_admin', 'branch_manager', 'senior_lawyer', 'lawyer', 'secretary'],
+    [ACTIONS.DELETE]: ['super_admin', 'branch_manager'],
   },
   [RESOURCES.AUDIT_LOGS]: {
-    [ACTIONS.VIEW]: ['super_admin'],
+    [ACTIONS.VIEW]: ['super_admin','branch_manager'],
   },
   [RESOURCES.DEADLINES]: {
     // Legal deadlines/appeals are case-critical: clients can see that

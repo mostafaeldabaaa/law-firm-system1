@@ -55,11 +55,19 @@ const assertNoConflict = async ({ lawyerId, startTime, endTime, excludeSessionId
  * via `rescheduledFrom`, marks the old one as 'rescheduled', and runs
  * the same conflict check as a normal creation.
  */
+// const rescheduleSession = async (oldSession, { startTime, endTime, location }, userId, t) => {
+//   await assertNoConflict({
+//     lawyerId: oldSession.lawyer,
+//     startTime,
+//     endTime,
+//     t,
+//   });
 const rescheduleSession = async (oldSession, { startTime, endTime, location }, userId, t) => {
   await assertNoConflict({
     lawyerId: oldSession.lawyer,
     startTime,
     endTime,
+    excludeSessionId: oldSession._id,   
     t,
   });
 

@@ -31,7 +31,6 @@ const createSession = catchAsync(async (req, res) => {
 
   sendResponse(res, 201, { message: req.t('session.scheduleSuccess'), data: { session } });
 });
-
 const getAllSessions = catchAsync(async (req, res) => {
   const { lawyer, case: caseId, status, from, to, page = 1, limit = 20 } = req.query;
 
@@ -50,7 +49,10 @@ const getAllSessions = catchAsync(async (req, res) => {
   const [sessions, total] = await Promise.all([
     Session.find(filter)
       .populate('case', 'caseNumber title')
-      .populate('lawyer')
+      .populate({
+        path: 'lawyer',
+        populate: { path: 'user', select: 'firstName lastName name email' },
+      }) // ✅ populate متداخل عشان بيانات المحامي تكمّل لحد اسمه
       .skip(skip)
       .limit(Number(limit))
       .sort({ startTime: 1 }),
@@ -62,6 +64,37 @@ const getAllSessions = catchAsync(async (req, res) => {
     meta: { total, page: Number(page), limit: Number(limit), totalPages: Math.ceil(total / limit) },
   });
 });
+
+// const getAllSessions = catchAsync(async (req, res) => {
+//   const { lawyer, case: caseId, status, from, to, page = 1, limit = 20 } = req.query;
+
+//   const filter = {};
+//   if (lawyer) filter.lawyer = lawyer;
+//   if (caseId) filter.case = caseId;
+//   if (status) filter.status = status;
+//   if (from || to) {
+//     filter.startTime = {};
+//     if (from) filter.startTime.$gte = new Date(from);
+//     if (to) filter.startTime.$lte = new Date(to);
+//   }
+
+//   const skip = (Number(page) - 1) * Number(limit);
+
+//   const [sessions, total] = await Promise.all([
+//     Session.find(filter)
+//       .populate('case', 'caseNumber title')
+//       .populate('lawyer')
+//       .skip(skip)
+//       .limit(Number(limit))
+//       .sort({ startTime: 1 }),
+//     Session.countDocuments(filter),
+//   ]);
+
+//   sendResponse(res, 200, {
+//     data: { sessions },
+//     meta: { total, page: Number(page), limit: Number(limit), totalPages: Math.ceil(total / limit) },
+//   });
+// });
 
 const getSession = catchAsync(async (req, res, next) => {
   const session = await Session.findById(req.params.id).populate('case').populate('lawyer');
