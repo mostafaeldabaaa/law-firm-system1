@@ -5,9 +5,7 @@ require("dotenv").config();
 
 const { initFirebase } = require("../src/config/firebase");
 const connectDB = require("../src/config/db");
-const app = require("../app");
-
-// init services مرة واحدة
+const app = require("../src/app");
 let isInitialized = false;
 
 module.exports = async (req, res) => {
