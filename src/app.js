@@ -94,6 +94,7 @@ const { translate } = require('./utils/i18n');
 const logger = require('./utils/logger');
 
 const app = express();
+app.set('trust proxy', 1);
 
 // --- Security middlewares ---
 app.use(helmet());
