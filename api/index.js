@@ -3,7 +3,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 require("dotenv").config();
 
-const { initFirebase } = require("../config/firebase");
+const { initFirebase } = require("../src/config/firebase");
 const connectDB = require("../config/db");
 const app = require("../app");
 

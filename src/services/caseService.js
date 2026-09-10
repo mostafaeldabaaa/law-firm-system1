@@ -12,6 +12,7 @@ const generateCaseNumber = async () => {
   const countThisYear = await Case.countDocuments({
     caseNumber: new RegExp(`^CASE-${year}-`),
   });
+   
   const sequence = String(countThisYear + 1).padStart(6, '0');
   return `CASE-${year}-${sequence}`;
 };
@@ -27,6 +28,7 @@ const generateCaseNumber = async () => {
  */
 const transitionCaseStatus = async (caseDoc, newStatus, userId, note = '', t = (k) => k) => {
   if (!caseDoc.canTransitionTo(newStatus)) {
+    
     const allowed = ALLOWED_TRANSITIONS[caseDoc.status].join(', ') || t('case.terminalState');
     throw new AppError(
       t('case.invalidTransition', { from: caseDoc.status, to: newStatus, allowed }),

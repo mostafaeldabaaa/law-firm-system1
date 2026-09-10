@@ -55,6 +55,7 @@ const sendPushToUser = async (userId, { title, body, data = {} }) => {
   // Collect tokens FCM says are no longer valid, and remove them.
   const invalidTokens = [];
   response.responses.forEach((r, i) => {
+    
     if (!r.success) {
       const code = r.error?.code;
       if (code === 'messaging/invalid-registration-token' || code === 'messaging/registration-token-not-registered') {
